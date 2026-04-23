@@ -113,6 +113,15 @@
       "linn": "Linn Large Format"
     };
 
+    window.addEventListener("DOMContentLoaded", () => {
+      const savedSite = localStorage.getItem('selectedSite');
+      if (savedSite) {
+        currentSite = savedSite;
+        document.getElementById('current-site').textContent = savedSite;
+      }
+      goTo("home");
+    });
+
     function goTo(page) {
       currentPage = page;
       document.getElementById('home-selection').classList.add('hidden');
@@ -143,11 +152,6 @@
 
     function backToSites() {
       goTo("sites");
-    }
-
-    // Charger le site déjà choisi
-    if (localStorage.getItem('selectedSite')) {
-      selectSite(localStorage.getItem('selectedSite'));
     }
 
     function startScanner() {
