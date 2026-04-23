@@ -25,6 +25,14 @@
   <div class="max-w-md mx-auto p-4">
     <h1 class="text-3xl font-bold text-center mb-6">Stock IONNYK</h1>
 
+    <!-- Choix Home page -->
+    <div id="home-selection" class="mb-8">
+      <div class="display: block">
+        <button onclick="selectSite('Site')" class="site-btn bg-zinc-800 hover:bg-emerald-600 p-4 rounded-2xl text-center">Choisir un site</button>
+        <button onclick="viewStock()" class="site-btn bg-zinc-800 hover:bg-emerald-600 p-4 rounded-2xl text-center">Voir stock vente</button>
+      </div>
+    </div>
+
     <!-- Choix du site -->
     <div id="site-selection" class="mb-8">
       <h2 class="text-xl mb-4">Choisis un site :</h2>
@@ -101,8 +109,16 @@
       "linn": "Linn Large Format"
     };
 
+    function selectHome(home) {
+      currentPage = home;
+      document.getElementById('home-selection').classList.add('hidden');
+      document.getElementById('main-app').classList.remove('hidden');
+      document.getElementById('current-page').textContent = home;
+      localStorage.setItem('selectedPage', home);
+    }
+
     function selectSite(site) {
-      currentSite = site;
+      currentPage = site;
       document.getElementById('site-selection').classList.add('hidden');
       document.getElementById('main-app').classList.remove('hidden');
       document.getElementById('current-site').textContent = site;
@@ -154,13 +170,13 @@
       const qty = parseInt(document.getElementById('qty-input').value) || 1;
       const delta = sign * qty;
 
-      if (!currentSite || !window.currentRef) {
+      if (!currentPage || !window.currentRef) {
         alert("Erreur : site ou référence manquante");
         return;
       }
 
       const payload = {
-        site: currentSite,
+        site: currentPage,
         ref: window.currentRef,
         delta: delta
       };
