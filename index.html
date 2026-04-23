@@ -98,7 +98,9 @@
   <script>
     let currentSite = null;
     let html5QrCode = null;
+    let scanning = false;
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwXmPYDNi4zhgK9fumpZkW1nSTsYjjB88aYGz08Re5Q2Sy0J_DdZF4Dnav1sI5RRfda2g/exec"; // ← Remplace par ton URL Apps Script
+    const beep = new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
 
     const productMap = {
       "MAXINE": "Maxine Masterpiece",
@@ -157,12 +159,19 @@
     }
 
     function handleQR(code) {
+      if (scanning) return;
+      scanning = true;
+
       if (navigator.vibrate) navigator.vibrate(100);
+      beep.play().catch(() => {});
+
       const ref = productMap[code.trim()];
       if (!ref) {
         alert("QR Code inconnu : " + code);
+        scanning = false;
         return;
-      }
+    }
+
       document.getElementById('product-name').textContent = ref;
       document.getElementById('result-modal').classList.remove('hidden');
       window.currentRef = ref; // on garde en mémoire
@@ -216,6 +225,7 @@
 
     function closeModal() {
       document.getElementById('result-modal').classList.add('hidden');
+      scanning = false;
     }
 
         function viewStock() {
