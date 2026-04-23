@@ -28,7 +28,7 @@
     <!-- Choix Home page -->
     <div id="home-selection" class="mb-8">
       <div class="block">
-        <button onclick="selectHome('Site')" class="site-btn bg-zinc-800 hover:bg-emerald-600 p-4 rounded-2xl text-center">Choisir un site</button>
+        <button onclick="goTo('sites')" class="site-btn bg-zinc-800 hover:bg-emerald-600 p-4 rounded-2xl text-center">Choisir un site</button>
         <button onclick="viewStock()" class="site-btn bg-zinc-800 hover:bg-emerald-600 p-4 rounded-2xl text-center">Voir stock vente</button>
       </div>
     </div>
@@ -40,6 +40,7 @@
         <button onclick="selectSite('Bierges')" class="site-btn bg-zinc-800 hover:bg-emerald-600 p-4 rounded-2xl text-center">Bierges</button>
         <button onclick="selectSite('Serviplast')" class="site-btn bg-zinc-800 hover:bg-emerald-600 p-4 rounded-2xl text-center">Serviplast</button>
         <button onclick="selectSite('La Hulpe')" class="site-btn bg-zinc-800 hover:bg-emerald-600 p-4 rounded-2xl text-center">La Hulpe</button>
+        <button onclick="backToHome()" class="text-emerald-400 text-sm underline">Retour</button>
       </div>
     </div>
 
@@ -47,7 +48,7 @@
     <div id="main-app" class="hidden">
       <div class="flex justify-between items-center mb-6">
         <div>Site : <span id="current-site" class="font-bold text-emerald-400"></span></div>
-        <button onclick="logoutSite()" class="font-bold text-emerald-400 text-sm underline">Retour</button>
+        <button onclick="backToSites()" class="font-bold text-emerald-400 text-sm underline">Retour</button>
       </div>
 
       <button onclick="startScanner()" 
@@ -97,6 +98,7 @@
 
   <script>
     let currentSite = null;
+    let currentPage = "home";
     let html5QrCode = null;
     let scanning = false;
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwXmPYDNi4zhgK9fumpZkW1nSTsYjjB88aYGz08Re5Q2Sy0J_DdZF4Dnav1sI5RRfda2g/exec"; // ← Remplace par ton URL Apps Script
@@ -111,26 +113,36 @@
       "linn": "Linn Large Format"
     };
 
-    function selectHome(home) {
-      currentSite = home;
+    function goTo(page) {
+      currentPage = page;
       document.getElementById('home-selection').classList.add('hidden');
       document.getElementById('site-selection').classList.add('hidden');
+      document.getElementById('main-app').classList.add('hidden');
+      if (page === "home") {
+      document.getElementById('home-selection').classList.remove('hidden');
+      }
+      if (page === "sites") {
+      document.getElementById('site-selection').classList.remove('hidden');
+      }
+      if (page === "app") {
       document.getElementById('main-app').classList.remove('hidden');
-      document.getElementById('current-page').textContent = home;
-      localStorage.setItem('selectedPage', home);
+      }
     }
 
     function selectSite(site) {
       currentSite = site;
-      
-      document.getElementById('main-app').classList.remove('hidden');
-      document.getElementById('current-site').textContent = site;
       localStorage.setItem('selectedSite', site);
+      document.getElementById('current-site').textContent = site;
+
+      goTo("app");
     }
 
-    function logoutSite() {
-      localStorage.removeItem('selectedSite');
-      location.reload();
+    function backToHome() {
+      goTo("home");
+    }
+
+    function backToSites() {
+      goTo("sites");
     }
 
     // Charger le site déjà choisi
@@ -154,8 +166,12 @@
     }
 
     function stopScanner() {
-      if (html5QrCode) html5QrCode.clear();
-      document.getElementById('scanner-modal').classList.add('hidden');
+      if (html5QrCode) {
+        html5QrCode.stop().then(() => {
+          html5QrCode.clear();
+      }).catch(() => {});
+    }
+    document.getElementById('scanner-modal').classList.add('hidden');
     }
 
     function handleQR(code) {
@@ -169,6 +185,7 @@
       if (!ref) {
         alert("QR Code inconnu : " + code);
         scanning = false;
+        stopScanner();
         return;
     }
 
@@ -226,6 +243,7 @@
     function closeModal() {
       document.getElementById('result-modal').classList.add('hidden');
       scanning = false;
+      window.currentRef = null;
     }
 
         function viewStock() {
